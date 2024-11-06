@@ -32,7 +32,7 @@ Explore the Github Repo: [Github Link](https://github.com/Sushant041/crowd_funds
 
 1. **Create Campaign:** Users can set up a single campaign per wallet with titles, descriptions, and funding goals.
 
-![step_2.png](https://cdn.dorahacks.io/static/files/191e29394b3c4c034b8834f478e9f929.png)
+![step_2.png](https://cdn.dorahacks.io/static/files/19302b0e7f20a4671ac7c684263a7baf.png)
 
 ![step_3.png](https://cdn.dorahacks.io/static/files/191e293d1245e223fbf56a9450a956a5.png)
 
