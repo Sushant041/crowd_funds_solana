@@ -11,13 +11,13 @@ The Campaign Governance Platform empowers communities to drive social impact thr
 
 Watch the demo video to see the platform in action: [Demo Video](https://youtu.be/MkiQO4Zy2qs)
 
-### Canvas Link
+### Website Link
 
-Explore the canvas for governance features: [Canvas Link](https://dscvr.one/post/1201336802623881355)
+Explore website for governance features: [Canvas Link]([https://dscvr.one/post/1201336802623881355](https://crowd-funds-solana.vercel.app/))
 
 ### Github Link
 
-Explore the Github Repo: [Github Link](https://github.com/preyanshu/CampaignChain)
+Explore the Github Repo: [Github Link](https://github.com/Sushant041/crowd_funds_solana)
 
 ## Features
 
