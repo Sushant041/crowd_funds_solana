@@ -13,7 +13,7 @@ Watch the demo video to see the platform in action: [Demo Video](https://youtu.b
 
 ### Website Link
 
-Explore website for governance features: [Canvas Link]([https://dscvr.one/post/1201336802623881355](https://crowd-funds-solana.vercel.app/))
+Explore website for governance features: [Website Link]((https://crowd-funds-solana.vercel.app/))
 
 ### Github Link
 
