@@ -2,20 +2,16 @@ import React, { useState, useEffect } from "react";
 import idl from "../idl.json";
 import {
   PublicKey,
-  clusterApiUrl,
-  Connection,
   SystemProgram,
 } from "@solana/web3.js";
 import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import { toast } from "react-toastify";
 import { Buffer } from "buffer";
-import Modal from "react-modal"; 
-import useCanvasWallet from "../Provider/CanvasWalletProvider";
-import { encode } from "bs58";
+import Modal from "react-modal";
 
 window.Buffer = Buffer;
 
-const Campaigns = ({ walletAddress }) => {
+const Campaigns = ({ wallet, connection }) => {
   const [campaigns, setCampaigns] = useState();
   const [activeTab, setActiveTab] = useState("myCampaigns");
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
@@ -29,61 +25,13 @@ const Campaigns = ({ walletAddress }) => {
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [isCreatedCampaign, setIsCreatedCampaign] = useState(false);
   const programId = new PublicKey(idl.address);
-  const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-  const SOLANA_MAINNET_CHAIN_ID = "solana:101";
-  const { canvasClient } = useCanvasWallet();
 
-  const signTransaction = async (transaction) => {
-    if (!canvasClient || !walletAddress) {
-      console.error("CanvasClient or walletAddress is not available");
-      return null;
-    }
+  const walletAddress = wallet?.publicKey?.toBase58();
+  // console.log(walletAddress, "wallet address as string");
 
-    try {
-      const network =
-        process.env.NEXT_PUBLIC_SOLANA_RPC || "https://api.devnet.solana.com/";
-      const connection = new Connection(network, "confirmed");
-
-      // Fetch the latest blockhash
-      const { blockhash } = await connection.getLatestBlockhash({
-        commitment: "finalized",
-      });
-      transaction.recentBlockhash = blockhash;
-      transaction.feePayer = new PublicKey(walletAddress);
-
-      // Serialize the transaction
-      const serializedTx = transaction.serialize({
-        requireAllSignatures: false,
-        verifySignatures: false,
-      });
-
-      const base58Tx = encode(serializedTx);
-      setNewCampaign({ name: "", description: "" });
-      setDonationAmount(0);
-      setWithdrawAmount(0);
-
-      // Sign and send the transaction via canvasClient
-      const results = await canvasClient.signAndSendTransaction({
-        unsignedTx: base58Tx,
-        awaitCommitment: "confirmed",
-        chainId: SOLANA_MAINNET_CHAIN_ID,
-      });
-
-      if (results?.untrusted?.success) {
-        toast.success("transaction signed");
-        getCampaigns();
-        console.log("Transaction signed:", results);
-        return results;
-      } else {
-        toast.error("Failed to sign transaction");
-        console.error("Failed to sign transaction");
-      }
-    } catch (error) {
-      toast.error("Failed to sign transaction");
-      console.error("Error signing transaction:", error);
-    }
-    return null;
-  };
+  const provider = new AnchorProvider(connection, wallet, {
+    commitment: "confirmed",
+  });
 
   const customStyles = {
     content: {
@@ -97,6 +45,7 @@ const Campaigns = ({ walletAddress }) => {
       padding: "20px",
       color: "rgb(255, 255, 255)",
       width: "400px",
+      height: "350px",
       margin: "auto",
       display: "flex",
       flexDirection: "column",
@@ -128,16 +77,6 @@ const Campaigns = ({ walletAddress }) => {
       toast.info("Wallet not connected.");
       return;
     }
-    const provider = new AnchorProvider(
-      connection,
-      {
-        publicKey: new PublicKey(walletAddress),
-        signTransaction,
-      },
-      {
-        commitment: "confirmed",
-      }
-    );
     const program = new Program(idl, provider);
 
     const campaignAccounts = await connection.getProgramAccounts(programId);
@@ -152,53 +91,48 @@ const Campaigns = ({ walletAddress }) => {
   };
 
   const createCampaign = async () => {
-    if (!walletAddress) {
-      setNewCampaign({ name: "", description: "" });
-      toast.info("Connect your wallet first");
-      return;
-    }
-    if (!newCampaign.name || !newCampaign.description) {
-      setNewCampaign({ name: "", description: "" });
-      toast.info("Invalid input.");
-      return;
-    }
-
-    if (isCreatedCampaign) {
-      setNewCampaign({ name: "", description: "" });
-      toast.error("Can not create more than one campaign");
-      return;
-    }
-
-    const provider = new AnchorProvider(
-      connection,
-      {
-        publicKey: new PublicKey(walletAddress),
-        signTransaction,
-      },
-      {
-        commitment: "confirmed",
+    try {
+      if (!walletAddress) {
+        setNewCampaign({ name: "", description: "" });
+        toast.info("Connect your wallet first");
+        return;
       }
-    );
+      if (!newCampaign.name || !newCampaign.description) {
+        setNewCampaign({ name: "", description: "" });
+        toast.info("Invalid input.");
+        return;
+      }
 
-    const program = new Program(idl, provider);
+      if (isCreatedCampaign) {
+        setNewCampaign({ name: "", description: "" });
+        toast.info("Can not create more than one campaign");
+        return;
+      }
 
-    const [campaign] = PublicKey.findProgramAddressSync(
-      [Buffer.from("CAMPAIGN_DEMO"), new PublicKey(walletAddress).toBuffer()],
-      program.programId
-    );
+      const program = new Program(idl, provider);
 
-    const res = await program.methods
-      .create(newCampaign.name, newCampaign.description)
-      .accounts({
-        campaign,
-        user: new PublicKey(walletAddress),
-        systemProgram: SystemProgram.programId,
-      })
-      .rpc();
+      const [campaign] = PublicKey.findProgramAddressSync(
+        [Buffer.from("CAMPAIGN_DEMO"), new PublicKey(walletAddress).toBuffer()],
+        program.programId
+      );
 
-    if (res) {
-      console.log("Created a new campaign w/ address:", campaign.toString());
-      toast("Created a new campaign");
+      const res = await program.methods
+        .create(newCampaign.name, newCampaign.description)
+        .accounts({
+          campaign,
+          user: new PublicKey(walletAddress),
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+
+      if (res) {
+        getCampaigns()
+        console.log("Created a new campaign w/ address:", campaign.toString());
+        toast("Created a new campaign");
+      }
+    } catch (error) {
+      console.error("Error creating campaign account:", error);
+      toast("Error creating campaign account:" + error);
     }
   };
 
@@ -215,41 +149,29 @@ const Campaigns = ({ walletAddress }) => {
       return;
     }
 
-    const provider = new AnchorProvider(
-      connection,
-      {
-        publicKey: new PublicKey(walletAddress),
-        signTransaction,
-      },
-      {
-        commitment: "confirmed",
-      }
-    );
-    const program = new Program(idl, provider);
+    try {
+      const program = new Program(idl, provider);
 
-    const res = await program.methods
-      .donate(new BN(donationAmount * 1e9)) // Convert SOL to lamports (1 SOL = 1e9 lamports)
-      .accounts({
-        campaign: selectedCampaign,
-        user: new PublicKey(walletAddress),
-        systemProgram: SystemProgram.programId,
-      })
-      .rpc();
-    if (res) {
-      console.log(
-        "Donated:",
-        donationAmount,
-        "to:",
-        selectedCampaign.toString()
-      );
-      toast.success(
-        "Donated:",
-        donationAmount,
-        "to:",
-        selectedCampaign.toString()
-      );
-    } else {
-      console.log(res);
+      const res = await program.methods
+        .donate(new BN(donationAmount * 1e9)) // Convert SOL to lamports (1 SOL = 1e9 lamports)
+        .accounts({
+          campaign: selectedCampaign,
+          user: new PublicKey(walletAddress),
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+      if (res) {
+        getCampaigns();
+        console.log("Donated:", donationAmount, "to:", selectedCampaign.toString()
+        );
+        toast.success("Donated:", donationAmount, "to:", selectedCampaign.toString()
+        );
+      } else {
+        console.log(res);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Error" + error)
     }
   };
 
@@ -265,41 +187,29 @@ const Campaigns = ({ walletAddress }) => {
       return;
     }
 
-    const provider = new AnchorProvider(
-      connection,
-      {
-        publicKey: new PublicKey(walletAddress),
-        signTransaction,
-      },
-      {
-        commitment: "confirmed",
+    try {
+      const program = new Program(idl, provider);
+
+      const res = await program.methods
+        .withdraw(new BN(withdrawAmount * 1e9)) // Convert SOL to lamports (1 SOL = 1e9 lamports)
+        .accounts({
+          campaign: selectedCampaign,
+          user: new PublicKey(walletAddress),
+        })
+        .rpc();
+
+      if (res) {
+        getCampaigns();
+        console.log("Withdrew:", withdrawAmount, "from:", selectedCampaign.toString()
+        );
+        toast.success("Withdrew:", withdrawAmount, "from:", selectedCampaign.toString()
+        );
+      } else {
+        console.log(res);
       }
-    );
-    const program = new Program(idl, provider);
-
-    const res = await program.methods
-      .withdraw(new BN(withdrawAmount * 1e9)) // Convert SOL to lamports (1 SOL = 1e9 lamports)
-      .accounts({
-        campaign: selectedCampaign,
-        user: new PublicKey(walletAddress),
-      })
-      .rpc();
-
-    if (res) {
-      console.log(
-        "Withdrew:",
-        withdrawAmount,
-        "from:",
-        selectedCampaign.toString()
-      );
-      toast.success(
-        "Withdrew:",
-        withdrawAmount,
-        "from:",
-        selectedCampaign.toString()
-      );
-    } else {
-      console.log(res);
+    } catch (error) {
+      console.log(error);
+      toast.error(error);
     }
   };
 
@@ -325,7 +235,7 @@ const Campaigns = ({ walletAddress }) => {
       {isOwnCampaigns && (
         <div
           style={{
-            width: "100%",
+            width: "90%",
             maxWidth: "800px",
             textAlign: "center",
             marginBottom: "16px",
@@ -349,93 +259,67 @@ const Campaigns = ({ walletAddress }) => {
 
       {campaigns &&
         (campaigns.length > 0 &&
-         campaigns
-          .filter((campaign) => {
-            return isOwnCampaigns
-              ? campaign.admin.toString() === walletAddress
-              : campaign.admin.toString() !== walletAddress;
-          })
-          .map((campaign) => (
-            <div
-              key={campaign.pubkey.toString()}
-              style={{
-                width: "100%",
-                maxWidth: "800px",
-                border: "1px solid grey",
-                borderRadius: "8px",
-                padding: "16px",
-                margin: "16px 0",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                backgroundColor: "#1C212E",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
+          campaigns
+            .filter((campaign) => {
+              return isOwnCampaigns
+                ? campaign.admin.toString() === walletAddress
+                : campaign.admin.toString() !== walletAddress;
+            })
+            .map((campaign) => (
               <div
+                key={campaign.pubkey.toString()}
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  marginBottom: "48px",
-                  textAlign: "left",
+                  width: "90%",
+                  maxWidth: "800px",
+                  border: "1px solid grey",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  margin: "16px 0",
+                  boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                  backgroundColor: "#1C212E",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                <h3
+                <div
                   style={{
-                    margin: "0 0 8px",
-                    color: "#00BCD4",
+                    display: "flex",
+                    flexDirection: "column",
+                    marginBottom: "48px",
+                    textAlign: "left",
                   }}
                 >
-                  {campaign.name}
-                </h3>
-                <p style={{ margin: "4px 0", color: "#ccc" }}>
-                  <strong>Description:</strong> {campaign.description}
-                </p>
-                <p style={{ margin: "4px 0", color: "#ccc" }}>
-                  <strong>Balance:</strong>{" "}
-                  {(campaign.amountDonated / 1e9).toFixed(2)} SOL
-                </p>
-                <p style={{ margin: "4px 0", color: "#ccc" }}>
-                  <strong>Admin:</strong> {campaign.admin.toString()}
-                </p>
-              </div>
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "16px",
-                  right: "16px",
-                  display: "flex",
-                  gap: "8px",
-                }}
-              >
-                <button
-                  onClick={() => {
-                    setDonateModalOpen(true);
-                    setSelectedCampaign(campaign.pubkey);
-                  }}
+                  <h3
+                    style={{
+                      margin: "0 0 8px",
+                      color: "#00BCD4",
+                    }}
+                  >
+                    {campaign.name}
+                  </h3>
+                  <p style={{ margin: "4px 0", color: "#ccc" }}>
+                    <strong>Description:</strong> {campaign.description}
+                  </p>
+                  <p style={{ margin: "4px 0", color: "#ccc" }}>
+                    <strong>Balance:</strong>{" "}
+                    {(campaign.amountDonated / 1e9).toFixed(2)} SOL
+                  </p>
+                  <p style={{ margin: "4px 0", color: "#ccc" }}>
+                    <strong>Admin:</strong> {campaign.admin.toString()}
+                  </p>
+                </div>
+                <div
                   style={{
-                    padding: "8px 16px",
-                    border: "none",
-                    borderRadius: "4px",
-                    backgroundColor: "#6366F1",
-                    color: "#fff",
-                    cursor: "pointer",
-                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                    transition: "background-color 0.3s ease",
+                    position: "absolute",
+                    bottom: "16px",
+                    right: "16px",
+                    display: "flex",
+                    gap: "8px",
                   }}
                 >
-                  Donate
-                </button>
-                {campaign.admin.toString() === walletAddress && (
                   <button
                     onClick={() => {
-                      if (
-                        (campaign.amountDonated / 1e9).toFixed(2) <
-                        withdrawAmount
-                      ) {
-                        toast.error("Cannot withdraw from campaign.");
-                        return;
-                      }
-                      setWithdrawModalOpen(true);
+                      setDonateModalOpen(true);
                       setSelectedCampaign(campaign.pubkey);
                     }}
                     style={{
@@ -449,12 +333,38 @@ const Campaigns = ({ walletAddress }) => {
                       transition: "background-color 0.3s ease",
                     }}
                   >
-                    Withdraw
+                    Donate
                   </button>
-                )}
+                  {campaign.admin.toString() === walletAddress && (
+                    <button
+                      onClick={() => {
+                        if (
+                          (campaign.amountDonated / 1e9).toFixed(2) <
+                          withdrawAmount
+                        ) {
+                          toast.error("Cannot withdraw from campaign.");
+                          return;
+                        }
+                        setWithdrawModalOpen(true);
+                        setSelectedCampaign(campaign.pubkey);
+                      }}
+                      style={{
+                        padding: "8px 16px",
+                        border: "none",
+                        borderRadius: "4px",
+                        backgroundColor: "#6366F1",
+                        color: "#fff",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                        transition: "background-color 0.3s ease",
+                      }}
+                    >
+                      Withdraw
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            ))
         )
       }
     </div>
@@ -535,7 +445,7 @@ const Campaigns = ({ walletAddress }) => {
               >
                 Create Campaign +
               </button>
-              {renderCampaigns(true)}
+                 {renderCampaigns(true)}
             </div>
           )}
           {activeTab === "otherCampaigns" && renderCampaigns(false)}
@@ -792,7 +702,7 @@ const Campaigns = ({ walletAddress }) => {
                   cursor: "pointer",
                   boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                   transition: "background-color 0.3s ease",
-                  marginBottom: "10px",
+                  marginBottom: "10px", 
                   marginTop: "10px",
                 }}
                 onClick={() => {

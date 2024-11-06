@@ -18,25 +18,25 @@ const GET_USER_DATA = gql`
 `;
 
 const UserProfile = ({ username, walletAddress, avatar }) => {
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState("hello");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchUserData = async (username) => {
-    try {
-      setLoading(true);
-      const data = await client.request(GET_USER_DATA, { username });
-      setUserData(data.userByName);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to fetch user data');
-      setLoading(false);
-    }
-  };
+  // const fetchUserData = async (username) => {
+  //   try {
+  //     setLoading(true);
+  //     const data = await client.request(GET_USER_DATA, { username });
+  //     setUserData(data.userByName);
+  //     setLoading(false);
+  //   } catch (err) {
+  //     setError('Failed to fetch user data');
+  //     setLoading(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchUserData(username);
-  }, [username]);
+  // useEffect(() => {
+  //   fetchUserData(username);
+  // }, [username]);
 
   const getInitials = (name) => {
     return name ? name.slice(0, 2).toUpperCase() : '';
@@ -84,19 +84,30 @@ const UserProfile = ({ username, walletAddress, avatar }) => {
           fontSize: '35px', // 2xl text
         }}
       >
-        {getInitials(username)}
+        {/* {getInitials(username)} */}
+        P
       </div> 
       }
       </div>
       <div style={styles.details}>
-        <p style={styles.username}>{username}</p>
-        <p style={styles.detailItem}>
-          <strong style={styles.followers}>{userData.followerCount}</strong> Followers &nbsp;&nbsp;
-          <strong style={styles.following}>{userData.followingCount}</strong> Following
+        <p style={styles.username}>
+          {/* {username} */}
+          Preyanshu Mishra
         </p>
         <p style={styles.detailItem}>
-          <img src={dscvr_logo} alt="DSCVR Points Icon" style={styles.icon} />
-          {userData.dscvrPoints/1e6}
+          <strong style={styles.followers}>
+            {/* {userData.followerCount} */}
+            500k
+            </strong> Followers &nbsp;&nbsp;
+          <strong style={styles.following}>
+            {/* {userData.followingCount} */}
+            500
+            </strong> Following
+        </p>
+        <p style={styles.detailItem}>
+          {/* <img src={dscvr_logo} alt="DSCVR Points Icon" style={styles.icon} /> */}
+          {/* {userData.dscvrPoints/1e6} */}
+          1 Million
         </p>
         <p style={styles.walletAddress}>
           Wallet Address: <span style={styles.shortenedWallet} title={walletAddress}>{shortenWalletAddress(walletAddress)}</span>
