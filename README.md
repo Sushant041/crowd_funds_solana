@@ -5,7 +5,7 @@
 
 ## Introduction
 
-The Campaign Governance Platform revolutionizes how community-driven initiatives are managed and funded. Users can create one campaign per wallet, receive donations, and withdraw funds, all within a secure and transparent on-chain environment. By leveraging the Solana blockchain, this platform ensures that every campaign activity is decentralized and immutable, aligning with the Solana Foundation's governance track requirements.
+The Campaign Governance Platform empowers communities to drive social impact through transparent and democratic funding. Built on the Solana blockchain, this platform enables each user to create one campaign per wallet, collect community donations, and manage funds in a secure, decentralized environment. By pooling resources and aligning incentives with community priorities, it fosters equitable participation and amplifies the reach of social initiatives. This approach not only ensures that funding flows where it’s needed most but also reinforces transparency and accountability at every step.
 
 ### Demo Video
 
