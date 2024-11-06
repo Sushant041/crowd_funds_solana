@@ -164,8 +164,7 @@ const Campaigns = ({ wallet, connection }) => {
         getCampaigns();
         console.log("Donated:", donationAmount, "to:", selectedCampaign.toString()
         );
-        toast.success("Donated:", donationAmount, "to:", selectedCampaign.toString()
-        );
+        toast.success("Donation successfull");
       } else {
         console.log(res);
       }
@@ -202,8 +201,7 @@ const Campaigns = ({ wallet, connection }) => {
         getCampaigns();
         console.log("Withdrew:", withdrawAmount, "from:", selectedCampaign.toString()
         );
-        toast.success("Withdrew:", withdrawAmount, "from:", selectedCampaign.toString()
-        );
+        toast.success("Withdrawl successfull");
       } else {
         console.log(res);
       }
