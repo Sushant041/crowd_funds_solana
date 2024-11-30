@@ -1,19 +1,26 @@
 # Campaign Governance Platform
 
 
-![_a70bfe24-9880-47e7-b0dd-e1287257c645.jpg](https://cdn.dorahacks.io/static/files/191e2926320ac7b2856cdb14e60b2e69.jpg)
+
+
+
 
 ## Introduction
 
-The Campaign Governance Platform empowers communities to drive social impact through transparent and democratic funding. Built on the Solana blockchain, this platform enables each user to create one campaign per wallet, collect community donations, and manage funds in a secure, decentralized environment. By pooling resources and aligning incentives with community priorities, it fosters equitable participation and amplifies the reach of social initiatives. This approach not only ensures that funding flows where it’s needed most but also reinforces transparency and accountability at every step.
+![Screenshot from 2024-11-30 22-23-33.png](https://cdn.dorahacks.io/static/files/1937e013f630d7003b3c9654e24a1cb9.png)
 
-### Demo Video
 
-Watch the demo video to see the platform in action: [Demo Video](https://youtu.be/MkiQO4Zy2qs)
+GameGov is a groundbreaking crowdfunding platform tailored for the gaming community, built on the Solana blockchain. Designed to fit seamlessly into the gaming ecosystem, GameGov allows users to create a single campaign per wallet to fund their gaming ventures, events, or projects.
 
-### Website Link
+Whether you're raising funds for an indie game, a competitive esports tournament, or a gaming community initiative, GameGov ensures every transaction is secure, transparent, and immutable. By leveraging the speed and efficiency of Solana, GameGov delivers a smooth experience for both creators and contributors.
 
-Explore website for governance features: [Website Link](https://crowd-funds-solana.vercel.app/)
+GameGov transforms the crowdfunding experience into an accessible and trustworthy process, empowering gamers and creators to bring their visions to life in a decentralized and community-driven way.
+
+
+
+### Demo Link
+
+Explore the governance features: [Link](https://crowd-funds-solana.vercel.app/)
 
 ### Github Link
 
@@ -32,7 +39,7 @@ Explore the Github Repo: [Github Link](https://github.com/Sushant041/crowd_funds
 
 1. **Create Campaign:** Users can set up a single campaign per wallet with titles, descriptions, and funding goals.
 
-![step_2.png](https://cdn.dorahacks.io/static/files/19302b0e7f20a4671ac7c684263a7baf.png)
+![step_2.png](https://cdn.dorahacks.io/static/files/191e29394b3c4c034b8834f478e9f929.png)
 
 ![step_3.png](https://cdn.dorahacks.io/static/files/191e293d1245e223fbf56a9450a956a5.png)
 
